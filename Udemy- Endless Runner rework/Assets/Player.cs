@@ -49,6 +49,8 @@ public class Player : MonoBehaviour
     {
         isRunning = rb.velocity.x != 0;
         anim.SetBool("isRunning", isRunning);
+        anim.SetBool("isGrounded", isGrounded);
+        anim.SetFloat("yVelocity", rb.velocity.y);
     }
 
     private void CheckInput()
