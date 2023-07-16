@@ -11,13 +11,14 @@ public class Player : MonoBehaviour
     [SerializeField]private float moveSpeed;
     [SerializeField]private float jumpForce;
 
-    private bool runBegun;
 
     [Header("Collision Info")]
    [SerializeField] private float groundCheckDistance;
    [SerializeField] private LayerMask whatIsGround;
     private bool isGrounded;
 
+    private bool isRunning;
+    private bool runBegun;
     
 
     // Start is called before the first frame update
@@ -31,6 +32,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        AnimatorControllers();
+
         if (runBegun)
         {
             rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
@@ -40,6 +43,12 @@ public class Player : MonoBehaviour
 
         CheckInput();
 
+    }
+
+    private void AnimatorControllers()
+    {
+        isRunning = rb.velocity.x != 0;
+        anim.SetBool("isRunning", isRunning);
     }
 
     private void CheckInput()
