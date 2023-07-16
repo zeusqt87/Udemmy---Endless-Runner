@@ -17,8 +17,7 @@ public class Player : MonoBehaviour
    [SerializeField] private LayerMask whatIsGround;
     private bool isGrounded;
 
-    private bool isRunning;
-    private bool runBegun;
+    private bool playerUnlocked;
     
 
     // Start is called before the first frame update
@@ -34,7 +33,7 @@ public class Player : MonoBehaviour
     {
         AnimatorControllers();
 
-        if (runBegun)
+        if (playerUnlocked)
         {
             rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
         }
@@ -47,9 +46,8 @@ public class Player : MonoBehaviour
 
     private void AnimatorControllers()
     {
-        isRunning = rb.velocity.x != 0;
-        anim.SetBool("isRunning", isRunning);
         anim.SetBool("isGrounded", isGrounded);
+        anim.SetFloat("xVelocity", rb.velocity.x);
         anim.SetFloat("yVelocity", rb.velocity.y);
     }
 
@@ -57,7 +55,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            runBegun = true;
+            playerUnlocked = true;
         }
 
         if (Input.GetKeyDown(KeyCode.Space)&& isGrounded)
