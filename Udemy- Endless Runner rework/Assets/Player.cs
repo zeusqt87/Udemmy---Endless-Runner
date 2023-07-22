@@ -10,7 +10,9 @@ public class Player : MonoBehaviour
     [Header("Move Info")]
     [SerializeField]private float moveSpeed;
     [SerializeField]private float jumpForce;
+    [SerializeField] private float doubleJumpForce;
 
+    private bool canDoubleJump;
 
     [Header("Collision Info")]
    [SerializeField] private float groundCheckDistance;
@@ -23,6 +25,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
@@ -46,6 +49,7 @@ public class Player : MonoBehaviour
 
     private void AnimatorControllers()
     {
+        anim.SetBool("canDoubleJump", canDoubleJump);
         anim.SetBool("isGrounded", isGrounded);
         anim.SetFloat("xVelocity", rb.velocity.x);
         anim.SetFloat("yVelocity", rb.velocity.y);
@@ -58,12 +62,27 @@ public class Player : MonoBehaviour
             playerUnlocked = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space)&& isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            JumpButton();
 
         }
     }
+
+    private void JumpButton()
+    {
+        if (isGrounded)
+        {
+            canDoubleJump = true;
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
+        else if (canDoubleJump)
+        {
+            canDoubleJump = false;
+            rb.velocity = new Vector2(rb.velocity.x, doubleJumpForce);    
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
