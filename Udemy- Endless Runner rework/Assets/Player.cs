@@ -8,15 +8,20 @@ public class Player : MonoBehaviour
     private Animator anim;
 
     [Header("Move Info")]
-    [SerializeField]private float moveSpeed;
-    [SerializeField]private float jumpForce;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float jumpForce;
     [SerializeField] private float doubleJumpForce;
 
     private bool canDoubleJump;
 
     [Header("Collision Info")]
-   [SerializeField] private float groundCheckDistance;
-   [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] private float groundCheckDistance;
+    [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private Vector2 wallCheckSize;
+
+    private bool wallDetected;
+
     private bool isGrounded;
 
     private bool playerUnlocked;
@@ -36,15 +41,23 @@ public class Player : MonoBehaviour
     {
         AnimatorControllers();
 
-        if (playerUnlocked)
+        if (playerUnlocked && !wallDetected)
         {
-            rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
+            Movement();
         }
 
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+        if (isGrounded)
+        {
+            canDoubleJump = true;
+        }
 
         CheckInput();
+        CheckCollision();
+    }
 
+    private void Movement()
+    {
+        rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
     }
 
     private void AnimatorControllers()
@@ -54,6 +67,16 @@ public class Player : MonoBehaviour
         anim.SetFloat("xVelocity", rb.velocity.x);
         anim.SetFloat("yVelocity", rb.velocity.y);
     }
+
+
+    private void CheckCollision()
+    {
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+        wallDetected = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, whatIsGround);
+
+    }
+
+
 
     private void CheckInput()
     {
@@ -73,7 +96,6 @@ public class Player : MonoBehaviour
     {
         if (isGrounded)
         {
-            canDoubleJump = true;
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
         else if (canDoubleJump)
@@ -86,5 +108,6 @@ public class Player : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
+        Gizmos.DrawWireCube(wallCheck.position, wallCheckSize);
     }
 }
