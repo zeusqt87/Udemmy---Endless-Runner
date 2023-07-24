@@ -8815,7 +8815,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   wallCheck: {fileID: 1989250626}
-  wallCheckSize: {x: 0.5, y: 2.3}
+  wallCheckSize: {x: 0.5, y: 2.27}
+  slideSpeed: 20
+  slideTime: 0.4
 --- !u!95 &810048134
 Animator:
   serializedVersion: 5

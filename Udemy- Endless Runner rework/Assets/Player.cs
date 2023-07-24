@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +26,12 @@ public class Player : MonoBehaviour
     private bool isGrounded;
 
     private bool playerUnlocked;
+
+    [Header("Slide Info")]
+    [SerializeField] private float slideSpeed;
+    [SerializeField] private float slideTime;
+    private float slideTimeCounter;
+    private bool isSliding;
     
 
     // Start is called before the first frame update
@@ -41,6 +48,8 @@ public class Player : MonoBehaviour
     {
         AnimatorControllers();
 
+        slideTimeCounter -= Time.deltaTime;
+
         if (playerUnlocked && !wallDetected)
         {
             Movement();
@@ -53,19 +62,33 @@ public class Player : MonoBehaviour
 
         CheckInput();
         CheckCollision();
+        CheckForSlide();
+    }
+
+    private void CheckForSlide()
+    {
+        if (slideTimeCounter < 0)
+            isSliding = false;
     }
 
     private void Movement()
     {
+        if (isSliding)
+        {
+            rb.velocity = new Vector2(slideSpeed, rb.velocity.y);
+        }
+        else
         rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
     }
 
     private void AnimatorControllers()
     {
-        anim.SetBool("canDoubleJump", canDoubleJump);
-        anim.SetBool("isGrounded", isGrounded);
         anim.SetFloat("xVelocity", rb.velocity.x);
         anim.SetFloat("yVelocity", rb.velocity.y);
+
+        anim.SetBool("canDoubleJump", canDoubleJump);
+        anim.SetBool("isGrounded", isGrounded);
+        anim.SetBool("isSliding", isSliding);
     }
 
 
@@ -88,6 +111,20 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             JumpButton();
+
+        }
+        if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            SlideButton();
+        }
+    }
+
+    private void SlideButton()
+    {
+        if (rb.velocity.x != 0)
+        {
+        isSliding = true;
+        slideTimeCounter = slideTime;
 
         }
     }
