@@ -30,6 +30,8 @@ public class Player : MonoBehaviour
     [Header("Slide Info")]
     [SerializeField] private float slideSpeed;
     [SerializeField] private float slideTime;
+    [SerializeField] private float slideCooldown;
+    private float slideCooldownCounter;
     private float slideTimeCounter;
     private bool isSliding;
     
@@ -49,6 +51,7 @@ public class Player : MonoBehaviour
         AnimatorControllers();
 
         slideTimeCounter -= Time.deltaTime;
+        slideCooldownCounter -= Time.deltaTime;
 
         if (playerUnlocked && !wallDetected)
         {
@@ -121,10 +124,11 @@ public class Player : MonoBehaviour
 
     private void SlideButton()
     {
-        if (rb.velocity.x != 0)
+        if (rb.velocity.x != 0&& slideCooldownCounter<0)
         {
         isSliding = true;
         slideTimeCounter = slideTime;
+        slideCooldownCounter = slideCooldown;
 
         }
     }
