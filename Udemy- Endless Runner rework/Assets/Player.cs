@@ -8,11 +8,17 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
 
+    [Header("Knock Back Info")]
+    [SerializeField] private Vector2 knockbackDirection;
+    private bool isKnocked;
+
     [Header("Speed Info")]
     [SerializeField] private float maxSpeed;
     [SerializeField] private float speedMultiplier;
     [Space]
+    private float defaultSpeed;
     [SerializeField] private float milestoneIncreaser;
+    private float defaultMilestoneIncrease;
     private float speedMilestone;
 
     [Header("Move Info")]
@@ -63,6 +69,8 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         speedMilestone = milestoneIncreaser;
+        defaultSpeed = moveSpeed;
+        defaultMilestoneIncrease = milestoneIncreaser;
 
     }
 
@@ -71,9 +79,17 @@ public class Player : MonoBehaviour
     {
         AnimatorControllers();
 
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Knockback();
+        }
+
         slideTimeCounter -= Time.deltaTime;
         slideCooldownCounter -= Time.deltaTime;
 
+        if (isKnocked)
+            return;
         if (playerUnlocked)
         {
             Movement();
@@ -83,7 +99,7 @@ public class Player : MonoBehaviour
         {
             canDoubleJump = true;
         }
-
+      
 
         SpeedController();
         CheckForLedge();
@@ -91,6 +107,23 @@ public class Player : MonoBehaviour
         CheckCollision();
         CheckForSlide();
        
+    }
+
+
+    private void Knockback()
+    {
+        isKnocked = true;
+        rb.velocity = knockbackDirection;
+    }
+
+    private void CancelKnockback() => isKnocked = false;
+   
+
+    #region Speedcontroll
+    private void SpeedReset()
+    {
+        moveSpeed = defaultSpeed;
+        milestoneIncreaser = defaultMilestoneIncrease;
     }
 
     private void SpeedController()
@@ -108,11 +141,14 @@ public class Player : MonoBehaviour
                 moveSpeed = maxSpeed;
         }
     }
+    #endregion
 
     private void CheckForLedge()
     {
         if (ledgeDetected && canGrabLedge) { 
             canGrabLedge = false;
+            rb.gravityScale = 0;
+
             Vector2 ledgePosition = GetComponentInChildren<ledgeDetection>().transform.position;
             climbBegunPosition = ledgePosition + offset1;
             climbOverPosition = ledgePosition + offset2;
@@ -126,6 +162,7 @@ public class Player : MonoBehaviour
     private void LedgeClimbOver()
     {
         canClimb = false;
+        rb.gravityScale = 5;
         transform.position = climbOverPosition;
         Invoke("AllowLedgeGrab", 0.1f);
     }
@@ -142,7 +179,10 @@ public class Player : MonoBehaviour
     private void Movement()
     {
         if (wallDetected)
+        {
+            SpeedReset();
             return;
+        }
         if (isSliding)
         {
             rb.velocity = new Vector2(slideSpeed, rb.velocity.y);
@@ -205,16 +245,22 @@ public class Player : MonoBehaviour
         anim.SetBool("isGrounded", isGrounded);
         anim.SetBool("isSliding", isSliding);
         anim.SetBool("canClimb", canClimb);
+
+        if (rb.velocity.y < -20)
+            anim.SetBool("canRoll", true);
+        anim.SetBool("isKnocked", isKnocked);
     }
+
+    private void AnimFinished() => anim.SetBool("canRoll", false);
+    
+
     private void CheckCollision()
     {
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
         ceillingDetected = Physics2D.Raycast(transform.position, Vector2.up, ceillingCheckDistance, whatIsGround);
         wallDetected = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, whatIsGround);
-
-       
-
     }
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
