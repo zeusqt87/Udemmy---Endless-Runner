@@ -8808,7 +8808,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b402bb4af9f4c0f8e8b8423270acd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
+  maxSpeed: 30
+  speedMultiplier: 1.08
+  milestoneIncreaser: 60
+  moveSpeed: 8
   jumpForce: 18
   doubleJumpForce: 13
   groundCheckDistance: 1.4
